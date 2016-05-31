@@ -39,15 +39,22 @@ public class DisjointSet<T>
 		return true;
 	}
 
-	public T data;
+	private final T _data;
 
 	public DisjointSet<T> parent;
 
 	public int rank;
 
+	public T getData()
+	{
+		return this._data;
+		
+	}
+	
 	public DisjointSet(T data)
 	{
+		this._data = data;
+		
 		this.parent = this;
-		this.data = data;
 	}
 }

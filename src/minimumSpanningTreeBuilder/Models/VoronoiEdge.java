@@ -6,33 +6,32 @@ public class VoronoiEdge
 
 	public Point end;
 
-	public VoronoiEdge neighbor; // the same edge, but pointing in the opposite direction
+	public VoronoiEdge neighbour; // the same edge, but pointing in the opposite direction
 
-	public Point site_left;
+	public Point left;
 
-	public Point site_right;
+	public Point right;
 	
-	public double slope;
+	public double f;
 	
 	public Point start;
 
-	public double yint;
+	public double g;
 	
-	public VoronoiEdge(Point first, Point left, Point right)
+	public VoronoiEdge(Point start, Point left, Point right)
 	{
-		this.start = first;
-		this.site_left = left;
-		this.site_right = right;
-		this.direction = new Point(right.y - left.y, -(right.x - left.x));
-		this.end = null;
-		this.slope = (right.x - left.x) / (left.y - right.y);
-		Point mid = new Point((right.x + left.x) / 2, (left.y + right.y) / 2);
-		this.yint = mid.y - this.slope * mid.x;
-	}
-	
-	@Override
-	public String toString()
-	{
-		return this.start + ", " + this.end;
+		this.start = start;
+		this.left = left;
+		this.right = right;
+		
+		this.direction = new Point(this.right.getY() - this.left.getY(),
+			-(this.right.getX() - this.left.getX()));
+		
+		this.f = (this.right.getX() - left.getX())
+				/ (left.getY() - right.getY());
+		
+		//Point mid = new Point((right.getX() + left.getX()) / 2, (left.getY() + right.getY()) / 2);
+		//this.g = mid.getY() - this.f * mid.getX();		
+		this.g = start.getY() - this.f * start.getX();
 	}
 }

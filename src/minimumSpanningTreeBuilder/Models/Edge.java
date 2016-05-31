@@ -12,7 +12,7 @@ public class Edge
 	{
 		this.u = u;
 		this.v = v;
-		this.weight = Math.pow(this.u.x - this.v.x, 2)
-				+ Math.pow(this.u.y - this.v.y, 2);
+		this.weight = Math.pow(this.u.getX() - this.v.getX(), 2)
+				+ Math.pow(this.u.getY() - this.v.getY(), 2);
 	}
 }

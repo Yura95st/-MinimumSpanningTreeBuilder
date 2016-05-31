@@ -1,147 +1,122 @@
 package minimumSpanningTreeBuilder.Models;
 
-// represents the beach line
-// can either be a site that is the center of a parabola
-// or can be a vertex that bisects two sites
 public class Parabola
 {
-	
-	public static int IS_FOCUS = 0;
-
-	public static int IS_VERTEX = 1;
-	
-	// returns the closest left site (focus of parabola)
-	public static Parabola getLeft(Parabola p)
-	{
-		return Parabola.getLeftChild(Parabola.getLeftParent(p));
-	}
-
-	// returns closest site (focus of another parabola) to the left
 	public static Parabola getLeftChild(Parabola p)
 	{
 		if (p == null)
 		{
 			return null;
 		}
-		Parabola child = p.child_left;
-		while (child.type == Parabola.IS_VERTEX)
+		Parabola par = p.getLeft();
+		while (!par.isLeaf)
 		{
-			child = child.child_right;
+			par = par.getRight();
 		}
-		return child;
+		return par;
 	}
-
-	// returns the closest parent on the left
+	
 	public static Parabola getLeftParent(Parabola p)
 	{
-		Parabola parent = p.parent;
-		if (parent == null)
+		Parabola par = p.parent;
+		Parabola pLast = p;
+		while (par.getLeft() == pLast)
 		{
-			return null;
-		}
-		Parabola last = p;
-		while (parent.child_left == last)
-		{
-			if (parent.parent == null)
+			if (par.parent == null)
 			{
 				return null;
 			}
-			last = parent;
-			parent = parent.parent;
+			pLast = par;
+			par = par.parent;
 		}
-		return parent;
-	}
-
-	// returns closest right site (focus of parabola)
-	public static Parabola getRight(Parabola p)
-	{
-		return Parabola.getRightChild(Parabola.getRightParent(p));
+		return par;
 	}
 	
-	// returns closest site (focus of another parabola) to the right
 	public static Parabola getRightChild(Parabola p)
 	{
 		if (p == null)
 		{
 			return null;
 		}
-		Parabola child = p.child_right;
-		while (child.type == Parabola.IS_VERTEX)
+		Parabola par = p.getRight();
+		while (!par.isLeaf)
 		{
-			child = child.child_left;
+			par = par.getLeft();
 		}
-		return child;
+		return par;
 	}
-
-	// returns the closest parent on the right
+	
 	public static Parabola getRightParent(Parabola p)
 	{
-		Parabola parent = p.parent;
-		if (parent == null)
+		Parabola par = p.parent;
+		if (par == null)
 		{
 			return null;
 		}
-		Parabola last = p;
-		while (parent.child_right == last)
+		
+		Parabola pLast = p;
+		while (par.getRight() == pLast)
 		{
-			if (parent.parent == null)
+			if (par.parent == null)
 			{
 				return null;
 			}
-			last = parent;
-			parent = parent.parent;
+			pLast = par;
+			par = par.parent;
 		}
-		return parent;
+		return par;
 	}
-
-	public Parabola child_left;
 	
-	public Parabola child_right;
+	public VoronoiEdge edge;
 	
-	public VoronoiEdge edge; // if is vertex
-
-	public Event event; // a parabola with a focus can disappear in a circle event
-
+	public Event event;
+	
+	public boolean isLeaf;
+	
 	public Parabola parent;
-
-	public Point point; // if is focus
 	
-	public int type;
+	private Parabola _left;
+	
+	private final Point _point;
+	
+	private Parabola _right;
 	
 	public Parabola()
 	{
-		this.type = Parabola.IS_VERTEX;
+		this._point = null;
+		this.isLeaf = false;
 	}
 	
-	public Parabola(Point p)
+	public Parabola(Point point)
 	{
-		this.point = p;
-		this.type = Parabola.IS_FOCUS;
+		this._point = point;
+		this.isLeaf = true;
 	}
 	
-	public void setLeftChild(Parabola p)
+	public Parabola getLeft()
 	{
-		this.child_left = p;
-		p.parent = this;
+		return this._left;
 	}
 	
-	public void setRightChild(Parabola p)
+	public Point getPoint()
 	{
-		this.child_right = p;
-		p.parent = this;
+		return this._point;
 	}
 	
-	@Override
-	public String toString()
+	public Parabola getRight()
 	{
-		if (this.type == Parabola.IS_FOCUS)
-		{
-			return "Focus at " + this.point;
-		}
-		else
-		{
-			return "Vertex/Edge beginning at " + this.edge.start;
-		}
+		return this._right;
 	}
-
+	
+	public void setLeft(Parabola left)
+	{
+		this._left = left;
+		left.parent = this;
+	}
+	
+	public void setRight(Parabola right)
+	{
+		this._right = right;
+		right.parent = this;
+	}
 }
