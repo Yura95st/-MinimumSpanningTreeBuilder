@@ -82,7 +82,7 @@ public class Main
 		StdDraw.setPenColor(255, 227, 50);
 		for (Edge edge : delaunayEdgesSet)
 		{
-			StdDraw.line(edge.u.x, edge.u.y, edge.v.x, edge.v.y);
+			StdDraw.line(edge.u.getX(), edge.u.getY(), edge.v.getX(), edge.v.getY());
 		}
 	}
 
@@ -92,7 +92,7 @@ public class Main
 		StdDraw.setPenColor(0, 255, 85);
 		for (Edge edge : spanningTreeEdges)
 		{
-			StdDraw.line(edge.u.x, edge.u.y, edge.v.x, edge.v.y);
+			StdDraw.line(edge.u.getX(), edge.u.getY(), edge.v.getX(), edge.v.getY());
 		}
 	}
 
@@ -103,7 +103,7 @@ public class Main
 
 		for (VoronoiEdge edge : voronoiEdges)
 		{
-			StdDraw.line(edge.start.x, edge.start.y, edge.end.x, edge.end.y);
+			StdDraw.line(edge.start.getX(), edge.start.getY(), edge.end.getX(), edge.end.getY());
 		}
 	}
 
@@ -113,7 +113,7 @@ public class Main
 		StdDraw.setPenColor(StdDraw.BLACK);
 		for (Point p : points)
 		{
-			StdDraw.point(p.x, p.y);
+			StdDraw.point(p.getX(), p.getY());
 		}
 	}
 
@@ -136,7 +136,7 @@ public class Main
 		ArrayList<Edge> delaunayEdgesSet = new ArrayList<Edge>();
 		for (VoronoiEdge edge : voronoiEdges)
 		{
-			delaunayEdgesSet.add(new Edge(edge.site_left, edge.site_right));
+			delaunayEdgesSet.add(new Edge(edge.left, edge.right));
 		}
 
 		Collections.sort(delaunayEdgesSet, new Comparator<Edge>() {
