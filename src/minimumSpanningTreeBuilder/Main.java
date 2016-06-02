@@ -25,9 +25,10 @@ public class Main
 	{
 		try
 		{
-			boolean isAnimationModeOn = true;
 			int pointsCount = 10;
+			boolean isAnimationModeOn = false;
 			// int pointsCount = Integer.parseInt(args[0]);
+			// boolean isAnimationModeOn = Boolean.parseBoolean(args[1]);
 			
 			List<Point> points = Main.generatePoints(pointsCount);
 			
