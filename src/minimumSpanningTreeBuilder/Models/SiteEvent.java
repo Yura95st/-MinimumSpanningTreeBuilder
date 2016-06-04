@@ -1,6 +1,7 @@
 package minimumSpanningTreeBuilder.Models;
 
 import minimumSpanningTreeBuilder.Enums.EventType;
+import minimumSpanningTreeBuilder.Utils.Guard;
 
 public class SiteEvent extends Event
 {
@@ -8,6 +9,8 @@ public class SiteEvent extends Event
 
 	public SiteEvent(Point point)
 	{
+		Guard.notNull(point, "point");
+
 		this._point = point;
 	}
 

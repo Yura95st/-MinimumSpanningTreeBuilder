@@ -1,27 +1,34 @@
 package minimumSpanningTreeBuilder.Models;
 
+import minimumSpanningTreeBuilder.Utils.Guard;
+
 public class Edge implements Comparable<Edge>
 {
-	public Point u;
-	
-	public Point v;
-	
-	public double weight;
-	
+	private final Point _u;
+
+	private final Point _v;
+
+	private final double _weight;
+
 	public Edge(Point u, Point v)
 	{
-		this.u = u;
-		this.v = v;
-		this.weight = Math.pow(this.u.getX() - this.v.getX(), 2)
-			+ Math.pow(this.u.getY() - this.v.getY(), 2);
+		Guard.notNull(u, "u");
+		Guard.notNull(v, "v");
+
+		this._u = u;
+		this._v = v;
+
+		this._weight =
+			Math.pow(this._u.getX() - this._v.getX(), 2)
+				+ Math.pow(this._u.getY() - this._v.getY(), 2);
 	}
-	
+
 	@Override
 	public int compareTo(Edge other)
 	{
-		return (int) Math.signum(this.weight - other.weight);
+		return (int) Math.signum(this._weight - other._weight);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -37,50 +44,67 @@ public class Edge implements Comparable<Edge>
 		{
 			return false;
 		}
-		
+
 		Edge other = (Edge) obj;
-		
-		if (Double.doubleToLongBits(this.weight) != Double
-				.doubleToLongBits(other.weight))
+
+		if (Double.doubleToLongBits(this._weight) != Double
+				.doubleToLongBits(other._weight))
 		{
 			return false;
 		}
-		
-		if (this.u == null)
+
+		if (this._u == null)
 		{
-			if (other.u != null && other.v != null)
+			if (other._u != null && other._v != null)
 			{
 				return false;
 			}
 		}
-		else if (!this.u.equals(other.u) && !this.u.equals(other.v))
+		else if (!this._u.equals(other._u) && !this._u.equals(other._v))
 		{
 			return false;
 		}
-		
-		if (this.v == null)
+
+		if (this._v == null)
 		{
-			if (other.v != null && other.u != null)
+			if (other._v != null && other._u != null)
 			{
 				return false;
 			}
 		}
-		else if (!this.v.equals(other.v) && !this.v.equals(other.u))
+		else if (!this._v.equals(other._v) && !this._v.equals(other._u))
 		{
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
+	public Point getU()
+	{
+		return this._u;
+	}
+
+	public Point getV()
+	{
+		return this._v;
+	}
+
+	public double getWeight()
+	{
+		return this._weight;
+	}
+
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((this.u == null) ? 0 : this.u.hashCode()) + ((this.v == null) ? 0 : this.v.hashCode());
+		result =
+			prime * result + ((this._u == null) ? 0 : this._u.hashCode())
+				+ ((this._v == null) ? 0 : this._v.hashCode());
 		long temp;
-		temp = Double.doubleToLongBits(this.weight);
+		temp = Double.doubleToLongBits(this._weight);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}

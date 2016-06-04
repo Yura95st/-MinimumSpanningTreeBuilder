@@ -10,59 +10,35 @@ import minimumSpanningTreeBuilder.Models.ParabolaEvent;
 import minimumSpanningTreeBuilder.Models.Point;
 import minimumSpanningTreeBuilder.Models.SiteEvent;
 import minimumSpanningTreeBuilder.Models.VoronoiEdge;
+import minimumSpanningTreeBuilder.Utils.Guard;
 
 public class VoronoiDiagramGenerator
 {
+	private double _currentY; // current y-coord of sweep line
+
 	private final List<VoronoiEdge> _edges;
 
 	private final PriorityQueue<Event> _events;
 
-	private final double _height;
+	private Parabola _root; // binary search tree represents beach line
 
-	private final Iterable<Point> _points;
-
-	private final double _width;
-
-	private Parabola root; // binary search tree represents beach line
-
-	private double ycurr; // current y-coord of sweep line
-
-	public VoronoiDiagramGenerator(Iterable<Point> points, double width,
-		double height)
+	public VoronoiDiagramGenerator()
 	{
-		this._points = points;
-		this._width = width;
-		this._height = height;
-
 		this._edges = new ArrayList<VoronoiEdge>();
 		this._events = new PriorityQueue<Event>();
 	}
 
-	// first thing we learned in this class :P
-	public int ccw(Point a, Point b, Point c)
+	public List<VoronoiEdge> generateDiagram(Iterable<Point> points,
+		double width, double height)
 	{
-		double area2 = (b.getX() - a.getX()) * (c.getY() - a.getY())
-				- (b.getY() - a.getY()) * (c.getX() - a.getX());
-		if (area2 < 0)
-		{
-			return -1;
-		}
-		else if (area2 > 0)
-		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
+		Guard.notNull(points, "points");
+		Guard.moreThanZero(width, "width");
+		Guard.moreThanZero(height, "height");
 
-	public List<VoronoiEdge> generateDiagram()
-	{
 		this._edges.clear();
 		this._events.clear();
 
-		for (Point p : this._points)
+		for (Point p : points)
 		{
 			this._events.add(new SiteEvent(p));
 		}
@@ -70,8 +46,8 @@ public class VoronoiDiagramGenerator
 		while (!this._events.isEmpty())
 		{
 			Event e = this._events.remove();
-			this.ycurr = e.getY();
-			
+			this._currentY = e.getY();
+
 			switch (e.getEventType())
 			{
 				case Site:
@@ -79,7 +55,7 @@ public class VoronoiDiagramGenerator
 					this.addParabola(((SiteEvent) e).getPoint());
 					break;
 				}
-				
+
 				case Circle:
 				{
 					this.removeParabola((ParabolaEvent) e);
@@ -88,9 +64,9 @@ public class VoronoiDiagramGenerator
 			}
 		}
 
-		this.ycurr = this._width + this._height;
+		this._currentY = width + height;
 
-		this.endEdges(this.root); // close off any dangling edges
+		this.endEdges(this._root); // close off any dangling edges
 
 		// get rid of those crazy inifinte lines
 		for (VoronoiEdge e : this._edges)
@@ -109,9 +85,9 @@ public class VoronoiDiagramGenerator
 	private void addParabola(Point point)
 	{
 		// base case
-		if (this.root == null)
+		if (this._root == null)
 		{
-			this.root = new Parabola(point);
+			this._root = new Parabola(point);
 			return;
 		}
 
@@ -124,8 +100,8 @@ public class VoronoiDiagramGenerator
 		}
 
 		// create new dangling edge; bisects parabola focus and p
-		Point start = new Point(point.getX(), this.getY(par.getPoint(),
-			point.getX()));
+		Point start =
+				new Point(point.getX(), this.getY(par.getPoint(), point.getX()));
 
 		VoronoiEdge el = new VoronoiEdge(start, par.getPoint(), point);
 		VoronoiEdge er = new VoronoiEdge(start, point, par.getPoint());
@@ -140,16 +116,36 @@ public class VoronoiDiagramGenerator
 		Parabola p0 = new Parabola(par.getPoint());
 		Parabola p1 = new Parabola(point);
 		Parabola p2 = new Parabola(par.getPoint());
-		
+
 		par.setLeft(p0);
 		par.setRight(new Parabola());
 		par.getRight().edge = er;
-		
+
 		par.getRight().setLeft(p1);
 		par.getRight().setRight(p2);
 
 		this.checkCircleEvent(p0);
 		this.checkCircleEvent(p2);
+	}
+
+	// first thing we learned in this class :P
+	private int ccw(Point a, Point b, Point c)
+	{
+		double area2 =
+				(b.getX() - a.getX()) * (c.getY() - a.getY())
+				- (b.getY() - a.getY()) * (c.getX() - a.getX());
+		if (area2 < 0)
+		{
+			return -1;
+		}
+		else if (area2 > 0)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 
 	// adds circle event if foci a, b, c lie on the same circle
@@ -189,14 +185,14 @@ public class VoronoiDiagramGenerator
 
 		double d = Math.sqrt((dx * dx) + (dy * dy));
 
-		if (start.getY() + d < this.ycurr)
+		if (start.getY() + d < this._currentY)
 		{
 			return; // must be after sweep line
 		}
 
 		// add circle event
-		ParabolaEvent e = new ParabolaEvent(new Point(start.getX(),
-			start.getY() + d));
+		ParabolaEvent e =
+				new ParabolaEvent(new Point(start.getX(), start.getY() + d));
 		e.arch = b;
 		b.event = e;
 		this._events.add(e);
@@ -236,7 +232,7 @@ public class VoronoiDiagramGenerator
 	// returns parabola above this x coordinate in the beach line
 	private Parabola getParabolaByX(double xx)
 	{
-		Parabola par = this.root;
+		Parabola par = this._root;
 		double x = 0;
 
 		while (!par.isLeaf)
@@ -265,19 +261,21 @@ public class VoronoiDiagramGenerator
 		Point p = left.getPoint();
 		Point r = right.getPoint();
 
-		double dp = 2 * (p.getY() - this.ycurr);
+		double dp = 2 * (p.getY() - this._currentY);
 		double a1 = 1 / dp;
 		double b1 = -2 * p.getX() / dp;
-		double c1 = (p.getX() * p.getX() + p.getY() * p.getY() - this.ycurr
-				* this.ycurr)
-				/ dp;
+		double c1 =
+				(p.getX() * p.getX() + p.getY() * p.getY() - this._currentY
+						* this._currentY)
+						/ dp;
 
-		double dp2 = 2 * (r.getY() - this.ycurr);
+		double dp2 = 2 * (r.getY() - this._currentY);
 		double a2 = 1 / dp2;
 		double b2 = -2 * r.getX() / dp2;
-		double c2 = (r.getX() * r.getX() + r.getY() * r.getY() - this.ycurr
-				* this.ycurr)
-				/ dp2;
+		double c2 =
+				(r.getX() * r.getX() + r.getY() * r.getY() - this._currentY
+						* this._currentY)
+						/ dp2;
 
 		double a = a1 - a2;
 		double b = b1 - b2;
@@ -304,12 +302,13 @@ public class VoronoiDiagramGenerator
 	private double getY(Point p, double x)
 	{
 		// determine equation for parabola around focus p
-		double dp = 2 * (p.getY() - this.ycurr);
+		double dp = 2 * (p.getY() - this._currentY);
 		double a1 = 1 / dp;
 		double b1 = -2 * p.getX() / dp;
-		double c1 = (p.getX() * p.getX() + p.getY() * p.getY() - this.ycurr
-				* this.ycurr)
-				/ dp;
+		double c1 =
+				(p.getX() * p.getX() + p.getY() * p.getY() - this._currentY
+						* this._currentY)
+						/ dp;
 		return (a1 * x * x + b1 * x + c1);
 	}
 
@@ -338,8 +337,9 @@ public class VoronoiDiagramGenerator
 			p2.event = null;
 		}
 
-		Point p = new Point(e.getPoint().getX(), this.getY(p1.getPoint(), e
-			.getPoint().getX())); // new vertex
+		Point p =
+				new Point(e.getPoint().getX(), this.getY(p1.getPoint(), e
+					.getPoint().getX())); // new vertex
 
 		// end edges!
 		xl.edge.end = p;
@@ -351,7 +351,7 @@ public class VoronoiDiagramGenerator
 		// edge is higher in tree
 		Parabola higher = new Parabola();
 		Parabola par = p1;
-		while (par != this.root)
+		while (par != this._root)
 		{
 			par = par.parent;
 			if (par == xl)

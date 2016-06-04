@@ -1,19 +1,26 @@
 package minimumSpanningTreeBuilder.Models;
 
+import minimumSpanningTreeBuilder.Utils.Guard;
+
 public class DisjointSet<T>
 {
 	public static DisjointSet find(DisjointSet x)
 	{
-		if (x.parent != x)
+		Guard.notNull(x, "x");
+
+		if (x._parent != x)
 		{
-			x.parent = DisjointSet.find(x.parent);
+			x._parent = DisjointSet.find(x._parent);
 		}
 
-		return x.parent;
+		return x._parent;
 	}
 
 	public static boolean union(DisjointSet x, DisjointSet y)
 	{
+		Guard.notNull(x, "x");
+		Guard.notNull(y, "y");
+
 		DisjointSet xRep = DisjointSet.find(x);
 		DisjointSet yRep = DisjointSet.find(y);
 
@@ -22,17 +29,17 @@ public class DisjointSet<T>
 			return false;
 		}
 
-		if (xRep.rank < yRep.rank)
+		if (xRep._rank < yRep._rank)
 		{
-			xRep.parent = yRep;
+			xRep._parent = yRep;
 		}
 		else
 		{
-			yRep.parent = xRep;
+			yRep._parent = xRep;
 
-			if (xRep.rank == yRep.rank)
+			if (xRep._rank == yRep._rank)
 			{
-				++xRep.rank;
+				++xRep._rank;
 			}
 		}
 
@@ -41,20 +48,31 @@ public class DisjointSet<T>
 
 	private final T _data;
 
-	public DisjointSet<T> parent;
+	private DisjointSet<T> _parent;
 
-	public int rank;
+	private int _rank;
+
+	public DisjointSet(T data)
+	{
+		Guard.notNull(data, "data");
+
+		this._data = data;
+
+		this._parent = this;
+	}
 
 	public T getData()
 	{
 		return this._data;
-		
 	}
-	
-	public DisjointSet(T data)
+
+	public DisjointSet<T> getParent()
 	{
-		this._data = data;
-		
-		this.parent = this;
+		return this._parent;
+	}
+
+	public int getRank()
+	{
+		return this._rank;
 	}
 }
